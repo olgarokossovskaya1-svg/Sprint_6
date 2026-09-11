@@ -1,9 +1,9 @@
 import allure
-import time
 from pages.main_page import MainPage
 from pages.order_page import OrderPage
 from pages.yandex_page import YandexPage
 from data.test_data import ORDER_DATA_1, ORDER_DATA_2
+import config
 
 
 class TestOrder:
@@ -89,21 +89,24 @@ class TestNavigation:
         main_page.open()
         main_page.accept_cookies()
         main_page.click_scooter_logo()
-        assert main_page.get_current_url() == "https://qa-scooter.praktikum-services.ru/"
+        assert main_page.get_current_url() == config.BASE_URL
 
 
     def test_yandex_logo_redirect(self, driver):
         main_page = MainPage(driver)
         main_page.open()
         main_page.accept_cookies()
+
         main_window = main_page.get_current_window_handle()
         main_page.click_yandex_logo()
         main_page.wait_for_new_window([main_window])
+
         new_window = main_page.get_window_handles()[-1]
         main_page.switch_to_window(new_window)
-        time.sleep(3)
+
         yandex_page = YandexPage(driver)
-        is_on_dzen = yandex_page.is_on_dzen_page()
+
+        assert yandex_page.wait_until_dzen_page_loaded()
+
         yandex_page.close_current_window()
         main_page.switch_to_window(main_window)
-        assert is_on_dzen
